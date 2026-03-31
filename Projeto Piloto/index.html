@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetShop Online</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- HEADER -->
+  <header class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold">🐾 PetShop Online</h1>
+        <p class="text-sm text-blue-100">Categorias dos seus pets favoritos</p>
+      </div>
+
+      <nav class="mt-4 md:mt-0 w-full md:w-auto">
+        <ul id="menuCategorias" class="flex flex-wrap gap-4 text-sm font-medium justify-center md:justify-end">
+          <li><a href="#inicio" class="hover:underline">Início</a></li>
+          <li><a href="#cadastro" class="hover:underline">Cadastrar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <section id="inicio" class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-16">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-4">Tudo para o seu melhor amigo 🐶🐱🐠🐦</h2>
+      <p class="text-lg text-blue-50">
+        Gerencie as categorias do seu petshop online de forma simples, bonita e dinâmica.
+      </p>
+    </div>
+  </section>
+
+  <!-- CATEGORIAS VISUAIS -->
+  <section class="max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-3xl font-bold text-center mb-10">Categorias do PetShop</h2>
+
+    <div id="cardsCategorias" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <!-- Cards serão inseridos aqui -->
+    </div>
+  </section>
+
+  <!-- ÁREA CRUD -->
+  <main class="max-w-7xl mx-auto px-6 pb-14 grid md:grid-cols-2 gap-8">
+
+    <!-- FORMULÁRIO -->
+    <section id="cadastro" class="bg-white rounded-2xl shadow-lg p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">📦 Cadastrar / Editar Categoria</h2>
+
+      <input type="hidden" id="categoriaId">
+
+      <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-2">Nome da Categoria</label>
+        <input type="text" id="nome" placeholder="Ex: Cachorro"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-gray-700 font-semibold mb-2">Descrição</label>
+        <textarea id="descricao" rows="4" placeholder="Descreva a categoria..."
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <div class="flex gap-4 flex-wrap">
+        <button onclick="salvarCategoria()"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow">
+          💾 Salvar
+        </button>
+
+        <button onclick="limparFormulario()"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-3 rounded-xl">
+          Limpar
+        </button>
+
+        <button onclick="cadastrarCategoriasPadrao()"
+          class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow">
+          🐾 Cadastrar Categorias Padrão
+        </button>
+      </div>
+    </section>
+
+    <!-- LISTA -->
+    <section class="bg-white rounded-2xl shadow-lg p-8">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">🛍️ Categorias Cadastradas</h2>
+        <button onclick="listarCategorias()"
+          class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-xl font-semibold">
+          Atualizar
+        </button>
+      </div>
+
+      <div id="listaCategorias" class="space-y-4">
+        <p class="text-gray-500">Carregando categorias...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-900 text-white mt-10">
+    <div class="max-w-7xl mx-auto px-6 py-8 text-center">
+      <h3 class="text-xl font-bold mb-2">🐾 PetShop Online</h3>
+      <p class="text-gray-300 text-sm mb-2">
+        Sistema simples de gerenciamento de categorias para petshop.
+      </p>
+      <p class="text-gray-400 text-xs">
+        © 2026 PetShop Online • Cachorro • Gato • Peixe • Pássaros • Outros Pets
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const API_URL = "http://localhost:8080/categorias";
+
+    function gerarIdCategoria(nome) {
+      return nome
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]/g, "");
+    }
+
+    function emojiPorCategoria(nome) {
+      const nomeLower = nome.toLowerCase();
+
+      if (nomeLower.includes("cachorro") || nomeLower.includes("cao") || nomeLower.includes("cão")) return "🐶";
+      if (nomeLower.includes("gato")) return "🐱";
+      if (nomeLower.includes("peixe")) return "🐠";
+      if (nomeLower.includes("pássaro") || nomeLower.includes("passaro") || nomeLower.includes("ave")) return "🐦";
+      if (nomeLower.includes("hamster") || nomeLower.includes("roedor")) return "🐹";
+      if (nomeLower.includes("coelho")) return "🐰";
+      if (nomeLower.includes("tartaruga")) return "🐢";
+      if (nomeLower.includes("réptil") || nomeLower.includes("reptil")) return "🦎";
+      return "🐾";
+    }
+
+    async function listarCategorias() {
+      try {
+        const resposta = await fetch(API_URL);
+        const categorias = await resposta.json();
+
+        atualizarMenu(categorias);
+        atualizarCards(categorias);
+        atualizarLista(categorias);
+
+      } catch (error) {
+        console.error("Erro ao listar categorias:", error);
+        document.getElementById("listaCategorias").innerHTML =
+          `<p class="text-red-500">Erro ao carregar categorias.</p>`;
+      }
+    }
+
+    function atualizarMenu(categorias) {
+      const menu = document.getElementById("menuCategorias");
+
+      menu.innerHTML = `
+        <li><a href="#inicio" class="hover:underline">Início</a></li>
+      `;
+
+      categorias.forEach(categoria => {
+        const idCategoria = gerarIdCategoria(categoria.nome);
+        menu.innerHTML += `
+          <li><a href="#${idCategoria}" class="hover:underline">${categoria.nome}</a></li>
+        `;
+      });
+
+      menu.innerHTML += `
+        <li><a href="#cadastro" class="hover:underline">Cadastrar</a></li>
+      `;
+    }
+
+    function atualizarCards(categorias) {
+      const cards = document.getElementById("cardsCategorias");
+      cards.innerHTML = "";
+
+      if (categorias.length === 0) {
+        cards.innerHTML = `
+          <div class="col-span-full text-center text-gray-500">
+            Nenhuma categoria cadastrada ainda.
+          </div>
+        `;
+        return;
+      }
+
+      categorias.forEach(categoria => {
+        const idCategoria = gerarIdCategoria(categoria.nome);
+        const emoji = emojiPorCategoria(categoria.nome);
+
+        cards.innerHTML += `
+          <div id="${idCategoria}" class="bg-white rounded-2xl shadow-md p-6 text-center hover:shadow-xl transition">
+            <div class="text-5xl mb-4">${emoji}</div>
+            <h3 class="text-xl font-bold mb-2">${categoria.nome}</h3>
+            <p class="text-gray-600 text-sm">${categoria.descricao}</p>
+          </div>
+        `;
+      });
+    }
+
+    function atualizarLista(categorias) {
+      const lista = document.getElementById("listaCategorias");
+      lista.innerHTML = "";
+
+      if (categorias.length === 0) {
+        lista.innerHTML = `<p class="text-gray-500">Nenhuma categoria cadastrada.</p>`;
+        return;
+      }
+
+      categorias.forEach(categoria => {
+        const nomeSeguro = categoria.nome.replace(/'/g, "\\'");
+        const descricaoSeguro = categoria.descricao.replace(/'/g, "\\'");
+
+        lista.innerHTML += `
+          <div class="border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start gap-4 flex-col md:flex-row">
+              <div>
+                <h3 class="text-xl font-bold text-gray-800">${categoria.nome}</h3>
+                <p class="text-gray-600 mt-2">${categoria.descricao}</p>
+                <p class="text-xs text-gray-400 mt-3">ID: ${categoria.id}</p>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <button onclick="editarCategoria(${categoria.id}, '${nomeSeguro}', '${descricaoSeguro}')"
+                  class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 rounded-xl">
+                  ✏️ Editar
+                </button>
+
+                <button onclick="excluirCategoria(${categoria.id})"
+                  class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl">
+                  🗑️ Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    async function salvarCategoria() {
+      const id = document.getElementById("categoriaId").value;
+      const nome = document.getElementById("nome").value.trim();
+      const descricao = document.getElementById("descricao").value.trim();
+
+      if (!nome || !descricao) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      const categoria = { nome, descricao };
+
+      try {
+        let resposta;
+
+        if (id) {
+          resposta = await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(categoria)
+          });
+          alert("Categoria atualizada com sucesso!");
+        } else {
+          resposta = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(categoria)
+          });
+          alert("Categoria cadastrada com sucesso!");
+        }
+
+        if (!resposta.ok) {
+          throw new Error("Erro ao salvar categoria");
+        }
+
+        limparFormulario();
+        listarCategorias();
+
+      } catch (error) {
+        console.error("Erro ao salvar categoria:", error);
+        alert("Erro ao salvar categoria.");
+      }
+    }
+
+    function editarCategoria(id, nome, descricao) {
+      document.getElementById("categoriaId").value = id;
+      document.getElementById("nome").value = nome;
+      document.getElementById("descricao").value = descricao;
+
+      window.scrollTo({
+        top: document.getElementById("cadastro").offsetTop - 30,
+        behavior: "smooth"
+      });
+    }
+
+    async function excluirCategoria(id) {
+      const confirmar = confirm("Tem certeza que deseja excluir esta categoria?");
+      if (!confirmar) return;
+
+      try {
+        const resposta = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE"
+        });
+
+        if (!resposta.ok) {
+          throw new Error("Erro ao excluir categoria");
+        }
+
+        alert("Categoria excluída com sucesso!");
+        listarCategorias();
+
+      } catch (error) {
+        console.error("Erro ao excluir categoria:", error);
+        alert("Erro ao excluir categoria.");
+      }
+    }
+
+    function limparFormulario() {
+      document.getElementById("categoriaId").value = "";
+      document.getElementById("nome").value = "";
+      document.getElementById("descricao").value = "";
+    }
+
+    async function cadastrarCategoriasPadrao() {
+      const categoriasPadrao = [
+        { nome: "Cachorro", descricao: "Produtos para cães, como rações, brinquedos, caminhas e acessórios." },
+        { nome: "Gato", descricao: "Produtos para gatos, incluindo areia, arranhadores, petiscos e brinquedos." },
+        { nome: "Peixe", descricao: "Itens para peixes, como aquários, filtros, rações e enfeites." },
+        { nome: "Pássaros", descricao: "Produtos para aves, como gaiolas, sementes, brinquedos e acessórios." },
+        { nome: "Outros Pets", descricao: "Produtos para hamster, coelho, tartaruga e outros animais de estimação." }
+      ];
+
+      try {
+        for (const categoria of categoriasPadrao) {
+          await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(categoria)
+          });
+        }
+
+        alert("Categorias padrão cadastradas com sucesso!");
+        listarCategorias();
+
+      } catch (error) {
+        console.error("Erro ao cadastrar categorias padrão:", error);
+        alert("Erro ao cadastrar categorias padrão.");
+      }
+    }
+
+    listarCategorias();
+  </script>
+
+</body>
+</html>

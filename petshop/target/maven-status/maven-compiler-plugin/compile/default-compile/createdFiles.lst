@@ -1,0 +1,7 @@
+com\mariaeduarda\petshop\services\CategoriaService.class
+com\mariaeduarda\petshop\entities\Categoria.class
+com\mariaeduarda\petshop\WebConfig.class
+com\mariaeduarda\petshop\controllers\CategoriaController.class
+com\mariaeduarda\petshop\repositories\CategoriaRepository.class
+com\mariaeduarda\petshop\PetshopApplication.class
+com\mariaeduarda\petshop\WebConfig$1.class
